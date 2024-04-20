@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MIPS-Runtime">
+    <output-path>$PROJECT_DIR$/out/artifacts/MIPS_Runtime</output-path>
+    <root id="archive" name="MIPS-Runtime.jar" />
+  </artifact>
+</component>
