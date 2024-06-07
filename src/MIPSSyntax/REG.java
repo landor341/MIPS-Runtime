@@ -32,13 +32,23 @@ public enum REG {
     $gp("$gp", 28),
     $sp("$sp", 29),
     $fp("$fp", 30),
-    $ra("$ra", 31);
+    $ra("$ra", 31),
+    PC("The program counter should not be accessed by string", -1);
 
     public final String label;
     public final int value;
 
+    public int storedVal;
+
     REG(String label, int value) {
         this.label = label;
         this.value = value;
+    }
+
+    public static REG matchValue(int value) {
+        for (REG r : REG.values()) {
+            if (r.value == value) return r;
+        }
+        return $zero;
     }
 }

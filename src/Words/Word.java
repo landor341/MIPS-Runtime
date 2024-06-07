@@ -2,6 +2,7 @@ package Words;
 
 import MIPSSyntax.OP;
 import MIPSSyntax.REG;
+import MIPSSyntax.memoryMap;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -17,6 +18,10 @@ public class Word {
     public Word(boolean debug) { if (debug) Arrays.fill(bits, true); }
 
     public Word(boolean[] word) { System.arraycopy(word, 0, bits, 0, 32); }
+
+    public Word(int val) {
+        this(Word.decimalToBinary(val, 32));
+    }
 
     public Word(String hexNum) { System.arraycopy(hexToBinary(hexNum), 0, bits, 0, 32); }
 
@@ -46,10 +51,36 @@ public class Word {
         return sb.toString();
     }
 
+    public int toInt() {
+        return Word.binaryToDecimal(this.bits, 0, this.bits.length-1, true); // TODO Is this right?
+    }
+
+    public void setByte(boolean[] b, int byteNum) {
+        for (int i=0; i<8; i++) {
+            this.bits[i+8*byteNum] = b[i];
+        }
+    }
+
+    /**
+     *
+     * @param byteNum selects byte 0 to 3
+     */
+    public boolean[] getByte(int byteNum) {
+        boolean[] res = new boolean[8];
+        for (int i=0; i<8; i++) {
+            res[i] = this.bits[i+8*(3-byteNum)];
+        }
+        return res;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (boolean b: bits) sb.append(b ? '1' : '0');
         return sb.toString();
+    }
+
+    public void execute(memoryMap mem) {
+        throw new IllegalStateException("This word is not an instruction!");
     }
 
 
@@ -58,13 +89,19 @@ public class Word {
     // #                                     Static Helper Methods                                           #
     // #######################################################################################################
 
-    public static int binaryToDecimal(boolean[] w, int startIndex, int endIndex) {
+    public static int binaryToDecimal(boolean[] w, int startIndex, int endIndex, boolean enableNegatives) {
         int res = 0;
 
-        for (int i=0; i<=endIndex; i++)
-            if (w[i+startIndex]) res += 2^i;
+        for (int i=0; i<=endIndex-startIndex; i++)
+            if ((enableNegatives && w[startIndex]) != w[endIndex-i]) res += Math.pow(2,i);
+        if (enableNegatives && w[startIndex]) // Twos complement logic
+            res = -(res+1);
 
         return res;
+    }
+
+    public static int binaryToDecimal(boolean[] w, boolean enableNegatives) {
+        return binaryToDecimal(w, 0, w.length-1, enableNegatives);
     }
 
     public static String binaryToHex(boolean[] w, int startIndex, int endIndex) {
@@ -88,6 +125,10 @@ public class Word {
         }
 
         return res.toString();
+    }
+
+    public static String binaryToHex(boolean[] w) {
+        return binaryToHex(w, 0, w.length-1);
     }
 
     public static boolean[] decimalToBinary(int num, int length) {

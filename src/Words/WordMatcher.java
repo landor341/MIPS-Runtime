@@ -32,7 +32,7 @@ public class WordMatcher {
         }
 
         // Return a nop
-        return new Word(true);
+        return new nopWord();
     }
 
 
